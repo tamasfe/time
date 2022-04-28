@@ -268,7 +268,7 @@ impl Serialize for UtcOffset {
             });
         }
 
-        let mut seq = serializer.serialize_seq(Some(6))?;
+        let mut seq = serializer.serialize_seq(Some(3))?;
         seq.serialize_element(&self.whole_hours())?;
         seq.serialize_element(&self.minutes_past_hour())?;
         seq.serialize_element(&self.seconds_past_minute())?;
