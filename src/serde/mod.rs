@@ -24,7 +24,7 @@ use core::marker::PhantomData;
 
 #[cfg(feature = "serde-human-readable")]
 use serde::ser::Error as _;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{ser::SerializeSeq, Deserialize, Deserializer, Serialize, Serializer};
 /// Generate a custom serializer and deserializer from the provided string.
 ///
 /// The syntax accepted by this macro is the same as [`format_description::parse()`], which can
@@ -89,7 +89,10 @@ impl Serialize for Date {
             });
         }
 
-        (self.year(), self.ordinal()).serialize(serializer)
+        let mut seq = serializer.serialize_seq(Some(2))?;
+        seq.serialize_element(&self.year())?;
+        seq.serialize_element(&self.ordinal())?;
+        seq.end()
     }
 }
 
@@ -112,7 +115,10 @@ impl Serialize for Duration {
             ));
         }
 
-        (self.whole_seconds(), self.subsec_nanoseconds()).serialize(serializer)
+        let mut seq = serializer.serialize_seq(Some(2))?;
+        seq.serialize_element(&self.whole_seconds())?;
+        seq.serialize_element(&self.subsec_nanoseconds())?;
+        seq.end()
     }
 }
 
@@ -144,18 +150,17 @@ impl Serialize for OffsetDateTime {
             });
         }
 
-        (
-            self.year(),
-            self.ordinal(),
-            self.hour(),
-            self.minute(),
-            self.second(),
-            self.nanosecond(),
-            self.offset.whole_hours(),
-            self.offset.minutes_past_hour(),
-            self.offset.seconds_past_minute(),
-        )
-            .serialize(serializer)
+        let mut seq = serializer.serialize_seq(Some(9))?;
+        seq.serialize_element(&self.year())?;
+        seq.serialize_element(&self.ordinal())?;
+        seq.serialize_element(&self.hour())?;
+        seq.serialize_element(&self.minute())?;
+        seq.serialize_element(&self.second())?;
+        seq.serialize_element(&self.nanosecond())?;
+        seq.serialize_element(&self.offset.whole_hours())?;
+        seq.serialize_element(&self.offset.minutes_past_hour())?;
+        seq.serialize_element(&self.offset.seconds_past_minute())?;
+        seq.end()
     }
 }
 
@@ -185,15 +190,14 @@ impl Serialize for PrimitiveDateTime {
             });
         }
 
-        (
-            self.year(),
-            self.ordinal(),
-            self.hour(),
-            self.minute(),
-            self.second(),
-            self.nanosecond(),
-        )
-            .serialize(serializer)
+        let mut seq = serializer.serialize_seq(Some(6))?;
+        seq.serialize_element(&self.year())?;
+        seq.serialize_element(&self.ordinal())?;
+        seq.serialize_element(&self.hour())?;
+        seq.serialize_element(&self.minute())?;
+        seq.serialize_element(&self.second())?;
+        seq.serialize_element(&self.nanosecond())?;
+        seq.end()
     }
 }
 
@@ -227,7 +231,12 @@ impl Serialize for Time {
             });
         }
 
-        (self.hour(), self.minute(), self.second(), self.nanosecond()).serialize(serializer)
+        let mut seq = serializer.serialize_seq(Some(4))?;
+        seq.serialize_element(&self.hour())?;
+        seq.serialize_element(&self.minute())?;
+        seq.serialize_element(&self.second())?;
+        seq.serialize_element(&self.nanosecond())?;
+        seq.end()
     }
 }
 
@@ -259,12 +268,11 @@ impl Serialize for UtcOffset {
             });
         }
 
-        (
-            self.whole_hours(),
-            self.minutes_past_hour(),
-            self.seconds_past_minute(),
-        )
-            .serialize(serializer)
+        let mut seq = serializer.serialize_seq(Some(6))?;
+        seq.serialize_element(&self.whole_hours())?;
+        seq.serialize_element(&self.minutes_past_hour())?;
+        seq.serialize_element(&self.seconds_past_minute())?;
+        seq.end()
     }
 }
 
